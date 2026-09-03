@@ -346,7 +346,7 @@
 }
 .landing-page__form button:hover,
 .landing-page__form button:focus-visible {
-  background: #1c69d1;
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
 .landing-page__form .landing-page__country-trigger {

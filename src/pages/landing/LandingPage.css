@@ -7,8 +7,8 @@
 }
 .landing-page {
   min-height: 100vh;
-  padding: 0 10.2vw;
-  overflow: hidden;
+  padding: 0 clamp(16px, 10.2vw, 130px) 32px;
+  overflow-x: hidden;
   color: var(--ink);
   font-family:
     Inter,
@@ -60,7 +60,7 @@
   position: relative;
   isolation: isolate;
   padding: 48px 7.2%;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid rgba(255, 255, 255, 0.34);
   border-radius: 20px;
   background: linear-gradient(125deg, rgba(255, 255, 255, 0.14), rgba(9, 72, 102, 0.18) 48%, rgba(0, 18, 35, 0.3));
@@ -83,6 +83,7 @@
 }
 .landing-page__panel-image {
   position: absolute;
+  inset: 0;
   z-index: 0;
   background-image: var(--hero-image);
   background-position: center;
@@ -194,7 +195,7 @@
 }
 .landing-page__form input {
   width: 100%;
-  padding: 10px 0;
+  padding: 5px 0;
   border: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.38);
   outline: none;
@@ -353,23 +354,76 @@
   background: #1c69d1;
   transform: translateY(-2px);
 }
-.landing-page__country-selector button {
-  padding: 12px 8px;
-
+@media (max-width: 960px) {
+  .landing-page {
+    padding-inline: clamp(20px, 6vw, 64px);
+  }
+  .landing-page__brand {
+    height: 128px;
+  }
+  .landing-page__panel {
+    min-height: 420px;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 0.88fr);
+    gap: 42px;
+    padding: 42px 6%;
+  }
+  .landing-page__socials {
+    margin-top: 48px;
+  }
 }
 @media (max-width: 700px) {
   .landing-page {
-    padding: 0 16px;
+    min-height: 100svh;
+    padding: 0 16px 24px;
   }
   .landing-page__brand {
-    height: 116px;
+    height: 108px;
+  }
+  .landing-page__wordmark {
+    width: min(250px, 70vw);
   }
   .landing-page__panel {
-    display: block;
+    display: grid;
     min-height: 0;
-    padding: 38px 24px;
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 32px 24px;
+    border-radius: 16px;
+  }
+  .landing-page h1 {
+    font-size: clamp(2rem, 9vw, 2.7rem);
+  }
+  .landing-page__intro p {
+    margin-bottom: 22px;
   }
   .landing-page__socials {
-    margin-top: 42px;
+    margin-top: 24px;
+  }
+  .landing-page__form {
+    margin-top: 32px;
+    gap: 14px;
+  }
+  .landing-page__form h2 {
+    font-size: 1.35rem;
+  }
+  .landing-page__country-menu {
+    width: min(300px, calc(100vw - 64px));
+    max-height: min(280px, 45svh);
+  }
+}
+@media (max-width: 420px) {
+  .landing-page__panel {
+    padding: 28px 20px;
+  }
+  .landing-page__button,
+  .landing-page__form button {
+    width: 100%;
+    text-align: center;
+  }
+  .landing-page__phone-field {
+    gap: 8px;
+  }
+  .landing-page__country-selector {
+    min-width: 78px;
   }
 }

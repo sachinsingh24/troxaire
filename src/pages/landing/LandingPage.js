@@ -4,6 +4,7 @@ import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import heroImage from "../../assets/BG Troxaire.jpg";
 import logo from "../../assets/Troxaire Logo White.png";
+import companyProfile from "../../assets/Company Profile Troxaire.pdf";
 import "./LandingPage.css";
 
 function SocialIcon({ type }) {
@@ -131,7 +132,7 @@ export default function LandingPage() {
         <div className="landing-page__intro">
           <h1 id="landing-title">Kenya's first dedicated HVAC airside products manufacturer.</h1>
           <p>Engineering airflow. Enhancing comfort. Protecting life.</p>
-          <a className="landing-page__button" href="#profile">
+          <a className="landing-page__button" href={companyProfile} download="Company Profile Troxaire.pdf">
             Download company profile
           </a>
           <div className="landing-page__socials" aria-label="Social links">

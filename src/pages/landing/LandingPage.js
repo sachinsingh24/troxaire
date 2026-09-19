@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import emailjs from "@emailjs/browser";
 import PhoneInput, { getCountryCallingCode, isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
@@ -102,6 +103,8 @@ function validateForm(values) {
 export default function LandingPage() {
   const [formValues, setFormValues] = useState(initialForm);
   const [formErrors, setFormErrors] = useState({});
+  const [country, setCountry] = useState("KE");
+  const [status, setStatus] = useState("idle");
 
   const updateField = ({ target }) => {
     const values = { ...formValues, [target.name]: target.value };
@@ -115,9 +118,33 @@ export default function LandingPage() {
     if (formErrors.number) setFormErrors(validateForm(values));
   };
 
+  const formattedPhone = (() => {
+    const callingCode = `+${getCountryCallingCode(country)}`;
+    const digits = formValues.number.replace(/\D/g, "");
+    const national = digits.startsWith(callingCode) ? digits.slice(callingCode.length) : digits;
+    return `${callingCode ? `(${callingCode}) ` : ""}${national.replace(/^0+/, "")}`;
+  })();
+
   const submitForm = (event) => {
     event.preventDefault();
-    setFormErrors(validateForm(formValues));
+    const nextErrors = validateForm(formValues);
+    setFormErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+    setStatus("sending");
+    emailjs
+      .send(
+        "service_h2cnqog",
+        "template_d7bwua5",
+        { name: formValues.name, number: formattedPhone, email: formValues.email, company: formValues.company },
+        { publicKey: "At4CTHagNmLGcb5Tn" }
+      )
+      .then(() => {
+        setFormValues(initialForm);
+        setStatus("success");
+      })
+      .catch(() => {
+        setStatus("error");
+      });
   };
 
   return (
@@ -131,6 +158,7 @@ export default function LandingPage() {
         <div className="landing-page__panel-image" aria-hidden="true" />
         <div className="landing-page__intro">
           <h1 id="landing-title">Kenya's first dedicated HVAC airside products manufacturer.</h1>
+          <p>Building the future of HVAC — right here in East Africa.</p>
           <p>Engineering airflow. Enhancing comfort. Protecting life.</p>
           <a className="landing-page__button" href={companyProfile} download="Company Profile Troxaire.pdf">
             Download company profile
@@ -147,6 +175,37 @@ export default function LandingPage() {
             </a>
           </div>
         </div>
+        {status === "success" ? (
+          <div className="landing-page__form landing-page__status landing-page__status--success" role="status">
+            <span className="landing-page__status-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="m8 12.5 2.5 2.5L16 9.5" />
+              </svg>
+            </span>
+            <h2>Message sent!</h2>
+            <p>Thank you for reaching out to Troxaire. Our team will get back to you shortly.</p>
+          </div>
+        ) : status === "error" ? (
+          <div className="landing-page__form landing-page__status landing-page__status--error" role="alert">
+            <span className="landing-page__status-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v4.5" />
+                <path d="M12 15.8v.2" />
+              </svg>
+            </span>
+            <h2>Something went wrong</h2>
+            <p>We couldn't send your message. Please check your connection and try again.</p>
+            <button type="button" onClick={() => setStatus("idle")}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M3 12a9 9 0 1 0 3-6.7" />
+                <path d="M3 4v5h5" />
+              </svg>
+              Retry
+            </button>
+          </div>
+        ) : (
         <form className="landing-page__form" noValidate onSubmit={submitForm}>
           <h2>Get in touch</h2>
           <label>
@@ -160,7 +219,7 @@ export default function LandingPage() {
           </label>
           <label>
             Phone number
-            <PhoneInput className="landing-page__phone-field" defaultCountry="KE" countrySelectComponent={CountrySelector} numberInputProps={{ "aria-invalid": Boolean(formErrors.number), "aria-describedby": formErrors.number ? "number-error" : undefined }} value={formValues.number || undefined} onChange={updatePhone} />
+            <PhoneInput className="landing-page__phone-field" defaultCountry="KE" countrySelectComponent={CountrySelector} onCountryChange={(nextCountry) => setCountry(nextCountry || "KE")} numberInputProps={{ "aria-invalid": Boolean(formErrors.number), "aria-describedby": formErrors.number ? "number-error" : undefined }} value={formValues.number || undefined} onChange={updatePhone} />
             {formErrors.number && (
               <span id="number-error" className="landing-page__error">
                 {formErrors.number}
@@ -185,8 +244,9 @@ export default function LandingPage() {
               </span>
             )}
           </label>
-          <button type="submit">Submit</button>
+          <button type="submit" disabled={status === "sending"}>{status === "sending" ? "Sending..." : "Submit"}</button>
         </form>
+        )}
       </section>
     </main>
   );
